@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.6
 # ---- builder ---------------------------------------------------------------
-FROM python:3.12-slim-bookworm AS builder
+FROM python:3.14-slim-bookworm AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
