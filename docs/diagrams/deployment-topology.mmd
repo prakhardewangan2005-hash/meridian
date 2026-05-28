@@ -1,0 +1,17 @@
+flowchart TB
+    subgraph K8s["Kubernetes"]
+        DS["Agent DaemonSet<br/>(one per node)"]
+        DEP["Controller Deployment<br/>(2-3 replicas + PDB)"]
+        SS["Postgres StatefulSet"]
+        MON["Prometheus / AM / Loki / Grafana"]
+    end
+    subgraph BM["Bare metal (Ansible)"]
+        U1["systemd: meridian-agent"]
+        U2["systemd: meridian-agent"]
+    end
+    TF["Terraform"] -->|provisions| K8s
+    DS --> DEP
+    DEP --> SS
+    MON --> DS
+    U1 --> DEP
+    U2 --> DEP

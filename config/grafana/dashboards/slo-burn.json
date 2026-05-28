@@ -1,0 +1,38 @@
+{
+  "uid": "meridian-slo-burn",
+  "title": "Meridian \u2014 SLO Burn",
+  "tags": [
+    "meridian"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "1h burn rate by SLO",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "meridian:slo_burn_rate_1h"
+        }
+      ]
+    }
+  ]
+}

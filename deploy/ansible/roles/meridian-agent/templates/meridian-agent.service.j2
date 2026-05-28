@@ -1,0 +1,23 @@
+[Unit]
+Description=Meridian Agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/meridian-agent --config {{ meridian_config_dir }}/agent.yaml
+Restart=on-failure
+RestartSec=5s
+User={{ meridian_user }}
+Group={{ meridian_group }}
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths={{ meridian_state_dir }}
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

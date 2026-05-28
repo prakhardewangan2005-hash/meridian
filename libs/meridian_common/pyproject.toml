@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meridian-common"
+version = "0.1.0"
+description = "Shared utilities for Meridian services"
+requires-python = ">=3.11"
+dependencies = ["structlog~=24.1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meridian_common"]

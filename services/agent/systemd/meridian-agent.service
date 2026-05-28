@@ -1,0 +1,51 @@
+[Unit]
+Description=Meridian Agent — per-host telemetry & probe runner
+Documentation=https://github.com/your-org/meridian/blob/main/services/agent/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/meridian-agent \
+  --config /etc/meridian/agent.yaml \
+  --probes /etc/meridian/probes.yaml
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+
+User=meridian
+Group=meridian
+AmbientCapabilities=CAP_NET_RAW
+CapabilityBoundingSet=CAP_NET_RAW
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictRealtime=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources
+
+# Resources
+LimitNOFILE=65536
+MemoryHigh=512M
+MemoryMax=1G
+TasksMax=512
+
+# State + config
+StateDirectory=meridian
+ConfigurationDirectory=meridian
+LogsDirectory=meridian
+ReadWritePaths=/var/lib/meridian
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,71 @@
+# Multi-window burn-rate recording rules (Google SRE workbook method).
+# Generated conceptually from config/slo/slo-catalog.yaml.
+#
+# burn_rate = (1 - sli) / (1 - objective)
+# A burn rate of 1 means we're exactly on budget; >1 means consuming faster.
+
+groups:
+  - name: meridian_slo_burn_rate
+    interval: 30s
+    rules:
+      # ---- probe_success_ratio (objective 99% => budget 0.01) ----
+      - record: meridian:slo_sli:probe_success_ratio
+        expr: |
+          sum(rate(meridian_probe_executions_total{status="ok"}[5m]))
+          /
+          sum(rate(meridian_probe_executions_total[5m]))
+
+      - record: meridian:slo_burn_rate_5m
+        labels: { slo: probe_success_ratio }
+        expr: |
+          (1 - (
+            sum(rate(meridian_probe_executions_total{status="ok"}[5m]))
+            /
+            sum(rate(meridian_probe_executions_total[5m]))
+          )) / 0.01
+
+      - record: meridian:slo_burn_rate_1h
+        labels: { slo: probe_success_ratio }
+        expr: |
+          (1 - (
+            sum(rate(meridian_probe_executions_total{status="ok"}[1h]))
+            /
+            sum(rate(meridian_probe_executions_total[1h]))
+          )) / 0.01
+
+      - record: meridian:slo_burn_rate_6h
+        labels: { slo: probe_success_ratio }
+        expr: |
+          (1 - (
+            sum(rate(meridian_probe_executions_total{status="ok"}[6h]))
+            /
+            sum(rate(meridian_probe_executions_total[6h]))
+          )) / 0.01
+
+      - record: meridian:slo_burn_rate_1d
+        labels: { slo: probe_success_ratio }
+        expr: |
+          (1 - (
+            sum(rate(meridian_probe_executions_total{status="ok"}[1d]))
+            /
+            sum(rate(meridian_probe_executions_total[1d]))
+          )) / 0.01
+
+      # ---- controller_api_availability (objective 99.9% => budget 0.001) ----
+      - record: meridian:slo_burn_rate_5m
+        labels: { slo: controller_api_availability }
+        expr: |
+          (1 - (
+            sum(rate(meridian_controller_requests_total{status!~"5.."}[5m]))
+            /
+            sum(rate(meridian_controller_requests_total[5m]))
+          )) / 0.001
+
+      - record: meridian:slo_burn_rate_1h
+        labels: { slo: controller_api_availability }
+        expr: |
+          (1 - (
+            sum(rate(meridian_controller_requests_total{status!~"5.."}[1h]))
+            /
+            sum(rate(meridian_controller_requests_total[1h]))
+          )) / 0.001

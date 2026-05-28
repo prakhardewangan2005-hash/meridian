@@ -1,0 +1,20 @@
+---
+- name: Decommission a node from the fleet
+  hosts: "{{ target | mandatory }}"
+  become: true
+  tasks:
+    - name: Stop and disable the agent
+      ansible.builtin.systemd:
+        name: meridian-agent
+        state: stopped
+        enabled: false
+
+    - name: Remove agent binary, config, and state
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ meridian_bin }}"
+        - "{{ meridian_config_dir }}"
+        - "{{ meridian_state_dir }}"
+        - /etc/systemd/system/meridian-agent.service

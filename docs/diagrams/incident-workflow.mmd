@@ -1,0 +1,8 @@
+stateDiagram-v2
+    [*] --> Detected: alert fires (burn-rate)
+    Detected --> Triaged: on-call assigns severity
+    Triaged --> Mitigating: follow runbook
+    Mitigating --> Mitigated: bleeding stopped
+    Mitigated --> Resolved: SLI recovered
+    Resolved --> Postmortem: blameless writeup
+    Postmortem --> [*]: action items tracked

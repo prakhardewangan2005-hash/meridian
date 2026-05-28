@@ -1,0 +1,23 @@
+# Chaos overlay: docker compose -f docker-compose.yml -f docker-compose.chaos.yml up
+# Adds the chaos service. The chaos container is privileged (NET_ADMIN + SYS_PTRACE);
+# this is intentional — it must manipulate tc qdiscs, iptables, and cgroups.
+
+services:
+  chaos:
+    build:
+      context: .
+      dockerfile: services/chaos/Dockerfile
+    image: meridian/chaos:dev
+    container_name: meridian-chaos
+    pid: host
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - SYS_PTRACE
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+      - ./config/chaos:/etc/meridian/chaos:ro
+    environment:
+      MERIDIAN_CHAOS_DRY_RUN: "true"  # safety: opt-in to real execution
+    entrypoint: ["sleep", "infinity"]

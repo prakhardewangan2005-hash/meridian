@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meridian-controller"
+version = "0.1.0"
+description = "Central control plane: registry, probe distribution, SLO evaluation, chaos orchestration"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi~=0.110",
+  "uvicorn[standard]~=0.27",
+  "pydantic~=2.6",
+  "pydantic-settings~=2.2",
+  "sqlalchemy[asyncio]~=2.0",
+  "asyncpg~=0.29",
+  "alembic~=1.13",
+  "structlog~=24.1",
+  "PyYAML~=6.0",
+  "httpx~=0.27",
+  "prometheus-client~=0.20",
+  "opentelemetry-api~=1.24",
+  "opentelemetry-sdk~=1.24",
+  "opentelemetry-instrumentation-fastapi~=0.45b0",
+  "meridian-common",
+  "meridian-proto",
+]
+
+[project.scripts]
+meridian-controller = "meridian_controller.__main__:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest~=8.0",
+  "pytest-asyncio~=0.23",
+  "httpx~=0.27",
+  "aiosqlite~=0.19",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meridian_controller"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

@@ -1,0 +1,10 @@
+meridian_version: "0.1.0"
+meridian_user: meridian
+meridian_group: meridian
+meridian_config_dir: /etc/meridian
+meridian_state_dir: /var/lib/meridian
+meridian_bin: /usr/local/bin/meridian-agent
+
+meridian_agent_log_level: INFO
+meridian_agent_metrics_port: 9101
+meridian_pki_dir: /etc/meridian/pki

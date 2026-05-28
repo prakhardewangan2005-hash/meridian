@@ -1,0 +1,21 @@
+# Production overrides.
+controller:
+  replicas: 3
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits: { cpu: "2", memory: 1Gi }
+
+postgres:
+  storage: 100Gi
+  resources:
+    requests: { cpu: "1", memory: 2Gi }
+    limits: { cpu: "4", memory: 8Gi }
+
+grafana:
+  adminPassword: ""   # supply via --set or sealed secret
+
+serviceMonitor:
+  enabled: true
+
+chaos:
+  enabled: true

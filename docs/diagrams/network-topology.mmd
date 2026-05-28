@@ -1,0 +1,14 @@
+flowchart LR
+    subgraph Host
+        A["Agent"]
+    end
+    A -->|DNS query| R["Resolver"]
+    A -->|TCP connect| S["Service:port"]
+    A -->|HTTP GET| E["Endpoint"]
+    A -->|ICMP echo| G["Gateway / peer"]
+    A -->|UDP TTL=1..n| H1["Hop 1"]
+    H1 --> H2["Hop 2"]
+    H2 --> H3["... destination"]
+    H1 -.ICMP TIME_EXCEEDED.-> A
+    H2 -.ICMP TIME_EXCEEDED.-> A
+    H3 -.ICMP DEST_UNREACHABLE.-> A

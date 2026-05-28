@@ -1,0 +1,38 @@
+{
+  "uid": "meridian-probe-health",
+  "title": "Meridian \u2014 Probe Health",
+  "tags": [
+    "meridian"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Probe success ratio by type",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "meridian:probe_success_ratio_by_type:5m"
+        }
+      ]
+    }
+  ]
+}

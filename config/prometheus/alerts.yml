@@ -1,0 +1,105 @@
+# Alert rules. Every alert carries a runbook_url annotation pointing at the
+# operational playbook in runbooks/. This is enforced in CI by tools/ci-local.sh.
+
+groups:
+  - name: meridian_slo_alerts
+    rules:
+      # ---- Fast burn: 2% of monthly budget in 1h (page) ----
+      - alert: SLOFastBurnProbeSuccess
+        expr: |
+          meridian:slo_burn_rate_1h{slo="probe_success_ratio"} > 14.4
+          and
+          meridian:slo_burn_rate_5m{slo="probe_success_ratio"} > 14.4
+        for: 2m
+        labels:
+          severity: page
+          slo: probe_success_ratio
+        annotations:
+          summary: "Fast error-budget burn on probe_success_ratio"
+          description: "Burning >2% of the 30d budget in 1h. 1h burn-rate is {{ $value | printf \"%.1f\" }}."
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/high-error-budget-burn.md"
+
+      # ---- Slow burn: 5% of monthly budget in 6h (page) ----
+      - alert: SLOSlowBurnProbeSuccess
+        expr: |
+          meridian:slo_burn_rate_6h{slo="probe_success_ratio"} > 6
+          and
+          meridian:slo_burn_rate_1h{slo="probe_success_ratio"} > 6
+        for: 15m
+        labels:
+          severity: page
+          slo: probe_success_ratio
+        annotations:
+          summary: "Slow error-budget burn on probe_success_ratio"
+          description: "Burning >5% of the 30d budget in 6h."
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/high-error-budget-burn.md"
+
+      - alert: ControllerAPIFastBurn
+        expr: |
+          meridian:slo_burn_rate_1h{slo="controller_api_availability"} > 14.4
+          and
+          meridian:slo_burn_rate_5m{slo="controller_api_availability"} > 14.4
+        for: 2m
+        labels:
+          severity: page
+          slo: controller_api_availability
+        annotations:
+          summary: "Controller API burning error budget fast"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/controller-degraded.md"
+
+  - name: meridian_operational_alerts
+    rules:
+      - alert: AgentDown
+        expr: up{job="meridian-agent"} == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Agent {{ $labels.instance }} is not being scraped"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/agent-down.md"
+
+      - alert: ProbeStaleness
+        expr: meridian:probe_staleness_seconds > 300
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Probe {{ $labels.probe }} hasn't run in >5m"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/probe-storm.md"
+
+      - alert: HighTCPRetransmitRate
+        expr: meridian:tcp_retransmit_rate:5m > 100
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Elevated TCP retransmits on {{ $labels.instance }}"
+          description: "Retransmit rate {{ $value | printf \"%.0f\" }}/s — possible MTU or congestion issue."
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/tcp-retransmit-storm.md"
+
+      - alert: NodeDiskFillingUp
+        expr: meridian_system{metric="disk_used_pct_root"} > 85
+        for: 10m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Disk >85% on {{ $labels.instance }}"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/disk-full.md"
+
+      - alert: PrometheusHighMemory
+        expr: process_resident_memory_bytes{job="prometheus"} > 3e9
+        for: 15m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Prometheus RSS >3GB — cardinality risk"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/prometheus-oom.md"
+
+      - alert: DNSResolutionFailing
+        expr: meridian:probe_success_ratio_by_type:5m{type="dns"} < 0.9
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "DNS probe success <90%"
+          runbook_url: "https://github.com/your-org/meridian/blob/main/runbooks/dns-resolution-failure.md"

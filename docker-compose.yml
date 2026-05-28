@@ -1,0 +1,134 @@
+# Meridian local development stack.
+# Brings up the full platform: agent + controller + Prometheus + Alertmanager + Loki + Grafana.
+# Generate dev PKI first: `make certs` (or `bash scripts/generate-certs.sh`).
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: meridian-postgres
+    environment:
+      POSTGRES_DB: meridian
+      POSTGRES_USER: meridian
+      POSTGRES_PASSWORD: meridian-dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meridian"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [meridian]
+
+  controller:
+    build:
+      context: .
+      dockerfile: services/controller/Dockerfile
+    image: meridian/controller:dev
+    container_name: meridian-controller
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MERIDIAN_CONTROLLER_DB_DSN: postgresql+asyncpg://meridian:meridian-dev@postgres:5432/meridian
+      MERIDIAN_CONTROLLER_LOG_LEVEL: INFO
+    volumes:
+      - ./config/controller:/etc/meridian:ro
+      - ./config/pki/dev:/etc/meridian/pki:ro
+    ports:
+      - "8443:8443"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,ssl; urllib.request.urlopen('https://localhost:8443/healthz', context=ssl._create_unverified_context()).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [meridian]
+
+  agent:
+    build:
+      context: .
+      dockerfile: services/agent/Dockerfile
+    image: meridian/agent:dev
+    container_name: meridian-agent
+    depends_on:
+      controller:
+        condition: service_healthy
+    cap_add:
+      - NET_RAW       # ICMP + traceroute
+    environment:
+      MERIDIAN_AGENT_NODE_ID: edge-01
+      MERIDIAN_AGENT_LOG_LEVEL: INFO
+      MERIDIAN_AGENT_CONTROLLER__URL: https://controller:8443
+    volumes:
+      - ./config/agent:/etc/meridian:ro
+      - ./config/pki/dev:/etc/meridian/pki:ro
+      - agent_buffer:/var/lib/meridian/buffer
+    ports:
+      - "9101:9101"
+    networks: [meridian]
+
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: meridian-prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=15d
+      - --web.enable-lifecycle
+    volumes:
+      - ./config/prometheus:/etc/prometheus:ro
+      - prom_data:/prometheus
+    ports:
+      - "9090:9090"
+    networks: [meridian]
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: meridian-alertmanager
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    volumes:
+      - ./config/alertmanager:/etc/alertmanager:ro
+      - am_data:/alertmanager
+    ports:
+      - "9093:9093"
+    networks: [meridian]
+
+  loki:
+    image: grafana/loki:2.9.6
+    container_name: meridian-loki
+    command: -config.file=/etc/loki/loki-config.yml
+    volumes:
+      - ./config/loki:/etc/loki:ro
+      - loki_data:/loki
+    ports:
+      - "3100:3100"
+    networks: [meridian]
+
+  grafana:
+    image: grafana/grafana:10.4.1
+    container_name: meridian-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: ""
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./config/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks: [meridian]
+
+networks:
+  meridian:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  agent_buffer:
+  prom_data:
+  am_data:
+  loki_data:
+  grafana_data:

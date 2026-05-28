@@ -1,0 +1,4 @@
+# Reference copy of the routing tree (also embedded in alertmanager.yml).
+# Documents the escalation policy:
+#   page   -> on-call primary, escalate to secondary after 15m
+#   ticket -> team queue, triaged next business day

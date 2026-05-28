@@ -1,0 +1,26 @@
+# meridian-controller configuration.
+bind_host: 0.0.0.0
+bind_port: 8443
+log_level: INFO
+
+db_dsn: postgresql+asyncpg://meridian:meridian-dev@postgres:5432/meridian
+db_pool_size: 10
+db_max_overflow: 5
+
+tls:
+  ca_cert: /etc/meridian/pki/ca.pem
+  server_cert: /etc/meridian/pki/controller.pem
+  server_key: /etc/meridian/pki/controller-key.pem
+  require_client_cert: true
+
+prometheus:
+  url: http://prometheus:9090
+  query_timeout_s: 10
+
+chaos:
+  service_url: http://chaos:8080
+  default_dry_run: true
+  max_concurrent_experiments: 5
+
+slo_eval_interval_s: 60
+heartbeat_timeout_s: 90

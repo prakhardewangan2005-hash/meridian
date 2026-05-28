@@ -1,0 +1,58 @@
+# Default values for the Meridian Helm chart.
+
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+controller:
+  replicas: 2
+  image:
+    repository: meridian/controller
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: "1", memory: 512Mi }
+  service:
+    port: 8443
+
+agent:
+  image:
+    repository: meridian/agent
+    tag: "0.1.0"
+    pullPolicy: IfNotPresent
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: 500m, memory: 256Mi }
+  bufferSizeLimit: 1Gi
+
+chaos:
+  enabled: false
+  image:
+    repository: meridian/chaos
+    tag: "0.1.0"
+
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  storage: 10Gi
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { cpu: "2", memory: 2Gi }
+
+grafana:
+  enabled: true
+  adminPassword: admin
+
+prometheus:
+  url: http://prometheus:9090
+
+networkPolicy:
+  enabled: true
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+serviceMonitor:
+  enabled: false   # set true if Prometheus Operator is installed

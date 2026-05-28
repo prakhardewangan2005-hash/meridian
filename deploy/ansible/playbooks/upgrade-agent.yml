@@ -1,0 +1,17 @@
+---
+- name: Rolling upgrade of meridian-agent
+  hosts: all
+  become: true
+  serial: "25%"          # upgrade 25% of the fleet at a time
+  max_fail_percentage: 10
+  roles:
+    - meridian-agent
+  post_tasks:
+    - name: Wait for agent metrics endpoint
+      ansible.builtin.uri:
+        url: "http://localhost:{{ meridian_agent_metrics_port }}/metrics"
+        status_code: 200
+      retries: 6
+      delay: 5
+      register: result
+      until: result.status == 200

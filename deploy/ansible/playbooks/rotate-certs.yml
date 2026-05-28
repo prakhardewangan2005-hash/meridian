@@ -1,0 +1,26 @@
+---
+- name: Rotate agent client certificates
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy new client certificate
+      ansible.builtin.copy:
+        src: "{{ new_cert_path }}"
+        dest: "{{ meridian_pki_dir }}/agent.pem"
+        owner: "{{ meridian_user }}"
+        mode: "0640"
+      notify: restart meridian-agent
+
+    - name: Copy new client key
+      ansible.builtin.copy:
+        src: "{{ new_key_path }}"
+        dest: "{{ meridian_pki_dir }}/agent-key.pem"
+        owner: "{{ meridian_user }}"
+        mode: "0600"
+      notify: restart meridian-agent
+
+  handlers:
+    - name: restart meridian-agent
+      ansible.builtin.systemd:
+        name: meridian-agent
+        state: restarted

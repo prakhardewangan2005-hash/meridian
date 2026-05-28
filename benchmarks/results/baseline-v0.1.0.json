@@ -1,0 +1,9 @@
+{
+  "benchmark": "agent_throughput",
+  "executions": 248130,
+  "duration_s": 3.0,
+  "throughput_per_s": 82710.0,
+  "concurrency": 64,
+  "git_ref": "v0.1.0",
+  "note": "Reference baseline captured on a 4-core CI runner."
+}

@@ -1,0 +1,10 @@
+# Append this objective to config/slo/slo-catalog.yaml
+- name: checkout_api_availability
+  service: checkout
+  description: Fraction of checkout API requests that did not return 5xx.
+  sli_query: |
+    sum(rate(http_requests_total{job="checkout",status!~"5.."}[5m]))
+    /
+    sum(rate(http_requests_total{job="checkout"}[5m]))
+  objective_pct: 99.95
+  window_days: 30

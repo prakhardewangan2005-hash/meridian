@@ -1,0 +1,11 @@
+all:
+  children:
+    edge:
+      hosts:
+        edge-01: { ansible_host: 10.0.1.11 }
+        edge-02: { ansible_host: 10.0.1.12 }
+    core:
+      hosts:
+        core-01: { ansible_host: 10.0.2.11 }
+  vars:
+    meridian_controller_url: https://controller.meridian.local:8443

@@ -1,0 +1,10 @@
+# A game-day scenario: inject latency, observe SLO burn, confirm recovery.
+experiments:
+  - kind: network_latency
+    target_node: edge-01
+    duration_s: 120
+    params: { interface: eth0, delay_ms: 75, jitter_ms: 15 }
+  - kind: network_loss
+    target_node: edge-01
+    duration_s: 120
+    params: { interface: eth0, loss_pct: 3 }

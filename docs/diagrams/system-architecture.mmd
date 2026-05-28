@@ -1,0 +1,30 @@
+flowchart TB
+    subgraph CP["Control Plane"]
+        CTRL["Controller<br/>FastAPI + Postgres"]
+        PROM["Prometheus"]
+        AM["Alertmanager"]
+        LOKI["Loki"]
+        GRAF["Grafana"]
+        CHAOS["Chaos Service"]
+    end
+    subgraph DP["Data Plane (per host)"]
+        AGENT["Agent"]
+        BUF["Disk Buffer"]
+        PROBES["Probes:<br/>dns/tcp/http/icmp/traceroute"]
+        SYS["System readers<br/>/proc /sys"]
+    end
+    OPS(["meridianctl / on-call"])
+    AGENT -->|register/heartbeat mTLS| CTRL
+    CTRL -->|probe assignments| AGENT
+    PROBES --> AGENT
+    SYS --> AGENT
+    AGENT --> BUF
+    PROM -->|scrape :9101| AGENT
+    AGENT -->|logs| LOKI
+    CTRL -->|query SLI| PROM
+    PROM --> AM
+    PROM --> GRAF
+    LOKI --> GRAF
+    CTRL -->|inject| CHAOS
+    OPS --> CTRL
+    AM -->|page/ticket| OPS

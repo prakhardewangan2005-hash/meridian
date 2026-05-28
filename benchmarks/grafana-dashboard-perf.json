@@ -1,0 +1,17 @@
+{
+  "uid": "meridian-perf",
+  "title": "Meridian — Performance",
+  "tags": ["meridian", "performance"],
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Probe execution rate",
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "gridPos": {"h": 9, "w": 24, "x": 0, "y": 0},
+      "targets": [{"refId": "A", "expr": "sum(rate(meridian_probe_executions_total[5m]))"}]
+    }
+  ]
+}

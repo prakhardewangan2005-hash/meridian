@@ -1,0 +1,6 @@
+# Symlink target placeholder — the real alert rules live in
+# config/prometheus/alerts.yml and are loaded by Prometheus, not Alertmanager.
+# This file documents the receiver-side routing contract for reference.
+#
+# severity=page   -> pager receiver   (group_wait 10s, repeat 1h)
+# severity=ticket -> tickets receiver (default cadence)

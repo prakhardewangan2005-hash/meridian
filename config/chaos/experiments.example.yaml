@@ -1,0 +1,26 @@
+# Example chaos experiments for use with `meridianctl chaos inject` or CI.
+experiments:
+  - kind: network_latency
+    target_node: edge-01
+    duration_s: 60
+    params: { interface: eth0, delay_ms: 50, jitter_ms: 10 }
+
+  - kind: network_loss
+    target_node: edge-01
+    duration_s: 60
+    params: { interface: eth0, loss_pct: 5 }
+
+  - kind: network_partition
+    target_node: edge-02
+    duration_s: 30
+    params: { peer_ip: 10.0.0.10 }
+
+  - kind: cpu_pressure
+    target_node: edge-01
+    duration_s: 120
+    params: { cores: 2 }
+
+  - kind: memory_pressure
+    target_node: edge-01
+    duration_s: 90
+    params: { memory_high_bytes: 268435456 }

@@ -1,0 +1,19 @@
+# Managed by Ansible — do not edit by hand.
+node_id: {{ inventory_hostname }}
+log_level: {{ meridian_agent_log_level }}
+labels:
+  region: "{{ region | default('unknown') }}"
+  role: "{{ group_names | join(',') }}"
+
+controller:
+  url: {{ meridian_controller_url }}
+  ca_cert: {{ meridian_config_dir }}/pki/ca.pem
+  client_cert: {{ meridian_config_dir }}/pki/agent.pem
+  client_key: {{ meridian_config_dir }}/pki/agent-key.pem
+
+exporter:
+  bind_host: 0.0.0.0
+  bind_port: {{ meridian_agent_metrics_port }}
+
+buffer:
+  path: {{ meridian_state_dir }}/buffer

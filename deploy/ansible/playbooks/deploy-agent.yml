@@ -1,0 +1,7 @@
+---
+- name: Deploy meridian-agent to the fleet
+  hosts: all
+  become: true
+  roles:
+    - meridian-prereqs
+    - meridian-agent

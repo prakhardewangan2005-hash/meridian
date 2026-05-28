@@ -1,0 +1,13 @@
+sequenceDiagram
+    participant P as Probe
+    participant R as Runner
+    participant B as Disk Buffer
+    participant X as Exporter
+    participant Pr as Prometheus
+    participant L as Loki
+    P->>R: ProbeResult
+    R->>B: write (NDJSON, fsync/64)
+    R->>X: record_probe (metrics)
+    Pr->>X: scrape :9101/metrics
+    R->>L: ship structured log
+    Note over B: drained + acked on delivery;<br/>survives restart

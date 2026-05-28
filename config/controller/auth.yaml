@@ -1,0 +1,17 @@
+# RBAC policy for the controller. Identity = client-cert CN.
+roles:
+  admin:
+    - { methods: ["*"], path: "/api/v1/*" }
+  operator:
+    - { methods: ["GET"], path: "/api/v1/*" }
+    - { methods: ["POST", "PUT"], path: "/api/v1/incidents*" }
+    - { methods: ["POST"], path: "/api/v1/chaos/inject" }
+  agent:
+    - { methods: ["POST"], path: "/api/v1/nodes/register" }
+    - { methods: ["POST"], path: "/api/v1/nodes/*/heartbeat" }
+  readonly:
+    - { methods: ["GET"], path: "/api/v1/*" }
+identities:
+  "operator": operator
+  "admin": admin
+  "agent": agent

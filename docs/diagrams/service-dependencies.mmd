@@ -1,0 +1,11 @@
+flowchart LR
+    AGENT["agent"] --> COMMON["meridian_common"]
+    AGENT --> PROTO["meridian_proto"]
+    CTRL["controller"] --> COMMON
+    CTRL --> PROTO
+    CTRL --> PG[("Postgres")]
+    CTRL --> PROM["Prometheus"]
+    CTRL --> CHAOS["chaos"]
+    CLI["meridianctl"] --> CTRL
+    CLI --> AGENT
+    CHAOS --> COMMON

@@ -1,0 +1,9 @@
+probes:
+  - type: dns
+    name: e2e-dns
+    target: example.com
+    interval_s: 30
+  - type: http
+    name: e2e-http
+    target: https://example.com/
+    interval_s: 30

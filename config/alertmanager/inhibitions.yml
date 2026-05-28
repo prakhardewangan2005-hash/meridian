@@ -1,0 +1,3 @@
+# Reference copy of inhibition rules (also embedded in alertmanager.yml).
+# AgentDown inhibits ProbeStaleness for the same instance.
+# ControllerDegraded inhibits SLO burn alerts that depend on controller metrics.

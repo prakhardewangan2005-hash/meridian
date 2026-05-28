@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: meridian-agent
+  namespace: meridian
+  labels:
+    app.kubernetes.io/name: meridian
+    app.kubernetes.io/component: agent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: agent
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: "10%"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: meridian
+        app.kubernetes.io/component: agent
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9101"
+    spec:
+      serviceAccountName: meridian-agent
+      tolerations:
+        - operator: Exists
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: agent
+          image: meridian/agent:0.1.0
+          ports:
+            - containerPort: 9101
+              name: metrics
+          env:
+            - name: MERIDIAN_AGENT_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: MERIDIAN_AGENT_CONTROLLER__URL
+              value: https://meridian-controller:8443
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+              add: ["NET_RAW"]
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          volumeMounts:
+            - name: pki
+              mountPath: /etc/meridian/pki
+              readOnly: true
+            - name: config
+              mountPath: /etc/meridian
+              readOnly: true
+            - name: buffer
+              mountPath: /var/lib/meridian/buffer
+      volumes:
+        - name: pki
+          secret:
+            secretName: meridian-agent-pki
+        - name: config
+          configMap:
+            name: meridian-agent-config
+        - name: buffer
+          emptyDir:
+            sizeLimit: 1Gi

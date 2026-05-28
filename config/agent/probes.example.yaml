@@ -1,0 +1,28 @@
+# Example probe definitions. In production these are pushed by the controller.
+probes:
+  - type: dns
+    name: resolve-root-ns
+    target: a.root-servers.net
+    record_type: A
+    interval_s: 30
+    timeout_s: 5
+  - type: http
+    name: public-health
+    target: https://example.com/
+    expected_status: [200]
+    interval_s: 30
+    timeout_s: 5
+  - type: tcp
+    name: postgres-listener
+    target: postgres:5432
+    interval_s: 20
+  - type: icmp
+    name: gateway-ping
+    target: 10.0.0.1
+    packet_count: 4
+    interval_s: 15
+  - type: traceroute
+    name: path-to-upstream
+    target: 1.1.1.1
+    max_hops: 20
+    interval_s: 300

@@ -1,0 +1,91 @@
+# Meridian SLO Catalog
+# ---------------------
+# This is the version-controlled source of truth for every Service Level
+# Objective in the platform. CI renders this into docs/slo-catalog.md and
+# generates the Prometheus multi-window burn-rate alert rules from it.
+#
+# Each objective declares:
+#   name           unique identifier
+#   service        owning service
+#   sli_query      a PromQL expression returning the *good-event ratio* in [0,1]
+#   objective_pct  the target (e.g. 99.9 means 0.1% error budget)
+#   window_days    the rolling compliance window
+#
+# Burn-rate alerting (Google SRE multi-window method) is derived automatically:
+#   page    : 1h burn-rate > 14.4  AND 5m  burn-rate > 14.4   (2% budget in 1h)
+#   page    : 6h burn-rate > 6     AND 30m burn-rate > 6      (5% budget in 6h)
+#   ticket  : 1d burn-rate > 3     AND 2h  burn-rate > 3      (10% budget in 1d)
+#   ticket  : 3d burn-rate > 1     AND 6h  burn-rate > 1      (10% budget in 3d)
+
+version: 1
+
+objectives:
+  - name: probe_success_ratio
+    service: probe-fleet
+    description: >
+      Fraction of all synthetic probe executions that succeed, fleet-wide.
+      This is the platform's flagship reliability signal — if probes can't
+      run, we are blind.
+    sli_query: |
+      sum(rate(meridian_probe_executions_total{status="ok"}[5m]))
+      /
+      sum(rate(meridian_probe_executions_total[5m]))
+    objective_pct: 99.0
+    window_days: 30
+
+  - name: dns_probe_success_ratio
+    service: dns
+    description: Success ratio of DNS probes specifically.
+    sli_query: |
+      sum(rate(meridian_probe_executions_total{type="dns",status="ok"}[5m]))
+      /
+      sum(rate(meridian_probe_executions_total{type="dns"}[5m]))
+    objective_pct: 99.5
+    window_days: 30
+
+  - name: http_probe_latency_slo
+    service: http-endpoints
+    description: >
+      Fraction of HTTP probes completing under 1s. Latency SLI implemented as a
+      ratio of fast requests to total requests (the "fast-burn" pattern).
+    sli_query: |
+      sum(rate(meridian_probe_latency_seconds_bucket{type="http",le="1"}[5m]))
+      /
+      sum(rate(meridian_probe_latency_seconds_count{type="http"}[5m]))
+    objective_pct: 99.0
+    window_days: 30
+
+  - name: controller_api_availability
+    service: controller
+    description: >
+      Fraction of controller API requests that did not return 5xx.
+    sli_query: |
+      sum(rate(meridian_controller_requests_total{status!~"5.."}[5m]))
+      /
+      sum(rate(meridian_controller_requests_total[5m]))
+    objective_pct: 99.9
+    window_days: 30
+
+  - name: agent_heartbeat_freshness
+    service: agent-fleet
+    description: >
+      Fraction of registered nodes that have heartbeated within the timeout.
+      Computed against the controller-exported node-state gauge.
+    sli_query: |
+      sum(meridian_controller_nodes_healthy)
+      /
+      sum(meridian_controller_nodes_total)
+    objective_pct: 99.0
+    window_days: 7
+
+  - name: icmp_loss_slo
+    service: network
+    description: >
+      Fraction of ICMP probes reporting zero packet loss. A proxy for L3 path
+      health across the fleet.
+    sli_query: |
+      sum(rate(meridian_probe_executions_total{type="icmp",status="ok"}[5m]))
+      /
+      sum(rate(meridian_probe_executions_total{type="icmp"}[5m]))
+    objective_pct: 99.5
+    window_days: 30

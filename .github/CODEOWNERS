@@ -1,0 +1,12 @@
+# Default owners for everything
+*                         @your-org/platform
+
+# Service-specific
+/services/agent/          @your-org/agent-team
+/services/controller/     @your-org/control-plane
+/services/chaos/          @your-org/sre
+/config/slo/              @your-org/sre
+/runbooks/                @your-org/sre
+/incident-reports/        @your-org/sre
+/docs/adr/                @your-org/platform
+/.github/                 @your-org/platform

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling>=1.21"]
+build-backend = "hatchling.build"
+
+[project]
+name = "meridian-agent"
+version = "0.1.0"
+description = "Per-host telemetry & synthetic probe agent for Meridian"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.11"
+authors = [{ name = "Meridian Contributors" }]
+keywords = ["sre", "observability", "monitoring", "networking"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: System :: Monitoring",
+  "Topic :: System :: Networking :: Monitoring",
+]
+dependencies = [
+  "aiohttp~=3.9",
+  "dnspython~=2.6",
+  "prometheus-client~=0.20",
+  "pydantic~=2.6",
+  "pydantic-settings~=2.2",
+  "structlog~=24.1",
+  "PyYAML~=6.0",
+  "uvloop~=0.19; sys_platform != 'win32'",
+  "meridian-common",
+  "meridian-proto",
+]
+
+[project.scripts]
+meridian-agent = "meridian_agent.__main__:main"
+
+[project.optional-dependencies]
+dev = [
+  "pytest~=8.0",
+  "pytest-asyncio~=0.23",
+  "pytest-cov~=4.1",
+  "ruff~=0.3",
+  "mypy~=1.9",
+  "types-PyYAML",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/meridian_agent"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers --cov=meridian_agent --cov-report=term-missing"
+testpaths = ["tests"]

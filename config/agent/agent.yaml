@@ -1,0 +1,42 @@
+# meridian-agent configuration.
+# Env vars (MERIDIAN_AGENT_*) override these; CLI flags override env.
+
+node_id: edge-01
+log_level: INFO
+labels:
+  region: us-east-1
+  role: edge
+  env: dev
+
+controller:
+  url: https://controller:8443
+  ca_cert: /etc/meridian/pki/ca.pem
+  client_cert: /etc/meridian/pki/agent.pem
+  client_key: /etc/meridian/pki/agent-key.pem
+  heartbeat_interval_s: 30
+
+exporter:
+  bind_host: 0.0.0.0
+  bind_port: 9101
+
+buffer:
+  path: /var/lib/meridian/buffer
+  max_bytes: 1073741824
+  flush_batch_size: 256
+
+system_metrics:
+  enabled: true
+  interval_s: 15
+  include_cgroups: true
+
+probes:
+  timeout_s: 5
+  interval_s: 30
+  jitter_s: 2
+  max_concurrent: 64
+
+logs:
+  enabled: true
+  endpoint: https://loki:3100/loki/api/v1/push
+  batch_size: 100
+  batch_interval_s: 5

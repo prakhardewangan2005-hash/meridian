@@ -1,0 +1,10 @@
+---
+- name: restart meridian-agent
+  ansible.builtin.systemd:
+    name: meridian-agent
+    state: restarted
+    daemon_reload: true
+
+- name: reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true

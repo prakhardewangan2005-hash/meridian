@@ -1,0 +1,12 @@
+groups:
+  - name: meridian_system
+    interval: 30s
+    rules:
+      - record: meridian:node_cpu_busy_pct:avg
+        expr: avg by (instance) (meridian_system{metric="cpu_busy_pct"})
+
+      - record: meridian:node_mem_used_pct
+        expr: meridian_system{metric="mem_used_pct"}
+
+      - record: meridian:tcp_retransmit_rate:5m
+        expr: rate(meridian_system{metric="net_Tcp_RetransSegs"}[5m])

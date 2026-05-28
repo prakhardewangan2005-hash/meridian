@@ -1,0 +1,18 @@
+groups:
+  - name: meridian_probe_health
+    interval: 30s
+    rules:
+      - record: meridian:probe_success_ratio_by_type:5m
+        expr: |
+          sum by (type) (rate(meridian_probe_executions_total{status="ok"}[5m]))
+          /
+          sum by (type) (rate(meridian_probe_executions_total[5m]))
+
+      - record: meridian:probe_p99_latency_by_type:5m
+        expr: |
+          histogram_quantile(0.99,
+            sum by (type, le) (rate(meridian_probe_latency_seconds_bucket[5m]))
+          )
+
+      - record: meridian:probe_staleness_seconds
+        expr: time() - meridian_probe_last_run_timestamp

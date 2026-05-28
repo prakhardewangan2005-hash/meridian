@@ -1,0 +1,38 @@
+{
+  "uid": "meridian-incident",
+  "title": "Meridian \u2014 Incident Response",
+  "tags": [
+    "meridian"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "timeseries",
+      "title": "Probe staleness (s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "meridian:probe_staleness_seconds"
+        }
+      ]
+    }
+  ]
+}

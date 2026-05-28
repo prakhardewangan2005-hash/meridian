@@ -1,0 +1,17 @@
+---
+- name: Ensure required packages are present
+  ansible.builtin.package:
+    name:
+      - ca-certificates
+      - iproute2
+    state: present
+
+- name: Check for systemd
+  ansible.builtin.stat:
+    path: /run/systemd/system
+  register: systemd_check
+
+- name: Fail if not running systemd
+  ansible.builtin.fail:
+    msg: "meridian-agent requires systemd"
+  when: not systemd_check.stat.exists

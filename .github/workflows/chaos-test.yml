@@ -1,0 +1,19 @@
+name: chaos-test
+on:
+  schedule:
+    - cron: "0 3 * * *"   # nightly at 03:00 UTC
+  workflow_dispatch: {}
+permissions:
+  contents: read
+jobs:
+  chaos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: |
+          pip install -e "libs/meridian_common" -e "libs/meridian_proto"
+          pip install -e "services/chaos[dev]"
+      - name: Run chaos scenarios (dry-run)
+        run: pytest tests/chaos services/chaos/tests -q

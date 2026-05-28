@@ -1,0 +1,12 @@
+apiVersion: v2
+name: meridian
+description: Production Reliability & Network Telemetry Platform
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords: [sre, observability, monitoring, networking]
+home: https://github.com/your-org/meridian
+sources:
+  - https://github.com/your-org/meridian
+maintainers:
+  - name: Meridian Contributors
